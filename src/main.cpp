@@ -44,7 +44,7 @@ bool InitWindowsApp(HINSTANCE instanceHandle, int show)
 	wc.hCursor = LoadCursor(0, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
 	wc.lpszMenuName = 0;
-	wc.lpszClassName = L"BasicWncClass";
+	wc.lpszClassName = L"BasicWndClass";
 
 	// Register the WNDCLASS instance with windows, so we can 
 	// create a window with it
