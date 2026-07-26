@@ -28,5 +28,57 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nShowCm
 	// Once created and initialised, run the message loop
 	// Exits once WM_QUIT is received
 	return Run();
+}
 
+bool InitWindowsApp(HINSTANCE instanceHandle, int show)
+{
+	// describe window characteristics
+	WNDCLASS wc;
+
+	wc.style = CS_HREDRAW | CS_VREDRAW;
+	wc.lpfnWndProc = WndProc;
+	wc.cbClsExtra = 0;
+	wc.cbWndExtra = 0;
+	wc.hInstance = instanceHandle;
+	wc.hIcon = LoadIcon(0, IDI_APPLICATION);
+	wc.hCursor = LoadCursor(0, IDC_ARROW);
+	wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+	wc.lpszMenuName = 0;
+	wc.lpszClassName = L"BasicWncClass";
+
+	// Register the WNDCLASS instance with windows, so we can 
+	// create a window with it
+	if (!RegisterClass(&wc))
+	{
+		MessageBox(0, L"RegisterClass FAILED", 0, 0);
+		return false;
+	}
+
+	// Now, create a window with the WNDCLASS that has been registered
+	// Will return a HWND (window handle)
+	ghMainWnd = CreateWindow(
+		L"BasicWndClass",	// registered WNDCLASS instance to use
+		L"Win32Basic",	// window title
+		WS_OVERLAPPEDWINDOW,	// style flag
+		CW_USEDEFAULT,	// x
+		CW_USEDEFAULT,	// y
+		CW_USEDEFAULT,	// width
+		CW_USEDEFAULT,	// height
+		0,	// parent window
+		0,	// menu handle
+		instanceHandle,	// app instance
+		0); // extra stuff?
+
+	if (ghMainWnd == 0)
+	{
+		MessageBox(0, L"CreateWindow FAILED", 0, 0);
+		return false;
+	}
+
+	// Now we can show the window!!
+	ShowWindow(ghMainWnd, show);
+	UpdateWindow(ghMainWnd);
+
+	// if all is good, return true!
+	return true;
 }
