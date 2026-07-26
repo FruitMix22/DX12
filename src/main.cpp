@@ -28,4 +28,5 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nShowCm
 	// Once created and initialised, run the message loop
 	// Exits once WM_QUIT is received
 	return Run();
+
 }
