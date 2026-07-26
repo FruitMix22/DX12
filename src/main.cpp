@@ -106,3 +106,29 @@ int Run()
 
 	return (int)msg.wParam;
 }
+
+LRESULT CALLBACK		
+WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	// Handle window messages, return 0 if so
+	switch (msg)
+	{
+		// If left mouse button is pressed, display a message
+	case WM_LBUTTONDOWN:
+		MessageBox(0, L"If you're seeing this, i didnt blow up", L"Howdy", MB_OK);
+		return 0;
+
+		// If esc is pressed, destroy the window
+	case WM_KEYDOWN:
+		if (wParam == VK_ESCAPE)
+			DestroyWindow(ghMainWnd);
+		return 0;
+
+		// If a destroy message (pressing X or alt+f4) , send a quit message
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
+	}
+
+	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
