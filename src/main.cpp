@@ -82,3 +82,27 @@ bool InitWindowsApp(HINSTANCE instanceHandle, int show)
 	// if all is good, return true!
 	return true;
 }
+
+int Run()
+{
+	MSG msg = {0};
+
+	// Loop until we get WM_QUIT
+	// Will return -1 if theres an error
+	BOOL bRet = 1;
+	while (bRet = GetMessage(&msg, 0, 0, 0) != 0)
+	{
+		if (bRet == -1)
+		{
+			MessageBox(0, L"GetMessage FAILED", L"Error", MB_OK);
+			break;
+		}
+		else
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
+
+	return (int)msg.wParam;
+}
