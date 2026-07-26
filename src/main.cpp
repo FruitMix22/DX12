@@ -20,5 +20,12 @@ WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 int WINAPI
 WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nShowCmd)
 {
-	return 0;
+	// Initialise the main application window
+	// If fails, exit out
+	if (!InitWindowsApp(hInstance, nShowCmd))
+		return 0;
+
+	// Once created and initialised, run the message loop
+	// Exits once WM_QUIT is received
+	return Run();
 }
