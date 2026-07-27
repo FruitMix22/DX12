@@ -42,7 +42,7 @@ bool InitWindowsApp(HINSTANCE instanceHandle, int show)
 	wc.hInstance = instanceHandle;
 	wc.hIcon = LoadIcon(0, IDI_APPLICATION);
 	wc.hCursor = LoadCursor(0, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+	wc.hbrBackground = (HBRUSH)GetStockObject(DEFAULT_PALETTE);
 	wc.lpszMenuName = 0;
 	wc.lpszClassName = L"BasicWndClass";
 
@@ -86,21 +86,18 @@ bool InitWindowsApp(HINSTANCE instanceHandle, int show)
 int Run()
 {
 	MSG msg = {0};
-
-	// Loop until we get WM_QUIT
-	// Will return -1 if theres an error
-	BOOL bRet = 1;
-	while (bRet = GetMessage(&msg, 0, 0, 0) != 0)
+	while (msg.message != WM_QUIT)
 	{
-		if (bRet == -1)
-		{
-			MessageBox(0, L"GetMessage FAILED", L"Error", MB_OK);
-			break;
-		}
-		else
+		// If there are windows messages, process them
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+		}
+		// Do game stuff
+		else
+		{
+			// render, yada yada
 		}
 	}
 
@@ -114,20 +111,35 @@ WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg)
 	{
 		// If left mouse button is pressed, display a message
-	case WM_LBUTTONDOWN:
-		MessageBox(0, L"If you're seeing this, i didnt blow up", L"Howdy", MB_OK);
-		return 0;
+		case WM_LBUTTONDOWN:
+			MessageBox(0, L"If you're seeing this, the window didnt blow up", L"Howdy", MB_OK);
+			return 0;
 
-		// If esc is pressed, destroy the window
-	case WM_KEYDOWN:
-		if (wParam == VK_ESCAPE)
-			DestroyWindow(ghMainWnd);
-		return 0;
+		// If esc is pressed, double check user meant to
+		case WM_KEYDOWN:
+			if (wParam == VK_ESCAPE)
+			{
+				// If they click yes (enum=6), destory window
+				if (MessageBox(0, L"Are you sure you want to close?", L"Warning!", 4) == 6)
+				{
+					DestroyWindow(ghMainWnd);
+				}
+			}
+			return 0;
+
+		// If close button is pressed double check if user meant to
+		case WM_CLOSE:
+			// If they click yes (enum=6), destory window
+			if (MessageBox(0, L"Are you sure you want to close?", L"Warning!", 4) == 6)
+			{
+				DestroyWindow(ghMainWnd);
+			}
+			return 0;
 
 		// If a destroy message (pressing X or alt+f4) , send a quit message
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		return 0;
+		case WM_DESTROY:
+			PostQuitMessage(0);
+			return 0;
 	}
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);
