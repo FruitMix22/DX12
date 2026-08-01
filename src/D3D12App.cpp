@@ -6,6 +6,21 @@
 
 using Microsoft::WRL::ComPtr;
 
+D3D12App::D3D12App(HINSTANCE hInstance)
+{
+
+}
+
+bool D3D12App::Initialize()
+{
+	if (!InitDirect3D())
+	{
+		return false;
+	}
+
+	return true;
+}
+
 bool D3D12App::InitDirect3D()
 {
 	UINT factoryFlags = 0;
@@ -23,4 +38,27 @@ bool D3D12App::InitDirect3D()
 #endif
 
 	ThrowIfFailed(CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&mdxgiFactory)));
+
+	std::vector<ComPtr<IDXGIAdapter>> adapters;
+	ComPtr<IDXGIAdapter> foundAdapter;
+
+	// Find an adapter that supports D3D_FEATURE_LEVEL_12_2
+		// This is mainly for laptops so it picks GPU over IGPU
+	HRESULT hardwareResult = E_FAIL;
+
+	for (int i = 0; mdxgiFactory->EnumAdapters(i, &foundAdapter) != DXGI_ERROR_NOT_FOUND; i++)
+	{
+		// Try to create hardware device
+		ComPtr<ID3D12Device> device = nullptr;
+		hardwareResult = D3D12CreateDevice(
+			foundAdapter.Get(), 
+			D3D_FEATURE_LEVEL_12_2, 
+			IID_PPV_ARGS(&device));
+
+		if (SUCCEEDED(hardwareResult))
+		{
+			ThrowIfFailed(device->QueryInterface(IID_PPV_ARGS(&md3dDevice)));
+			break;
+		}
+	}
 }

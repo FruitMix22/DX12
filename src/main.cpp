@@ -1,5 +1,6 @@
 // Includes al  Win32 API stuff
 #include <Windows.h>
+#include "D3D12App.hpp"
 
 // Main window handle; tthis is used to identify
 // a created window (window ID)
@@ -24,6 +25,9 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nShowCm
 	// If fails, exit out
 	if (!InitWindowsApp(hInstance, nShowCmd))
 		return 0;
+
+	D3D12App app(hInstance);
+	app.Initialize();
 
 	// Once created and initialised, run the message loop
 	// Exits once WM_QUIT is received
