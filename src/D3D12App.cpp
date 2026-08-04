@@ -13,16 +13,17 @@ D3D12App::D3D12App(HINSTANCE hInstance)
 
 bool D3D12App::Initialize()
 {
-	if (!InitDirect3D())
-	{
-		return false;
-	}
-
+	InitDirect3D();
+	CreateFence();
+	CreateCommandObjects();
 	return true;
 }
 
 bool D3D12App::InitDirect3D()
 {
+	//**********************//
+	//	   Create Device	//
+	//**********************//
 	UINT factoryFlags = 0;
 
 #if defined(DEBUG) || defined(_DEBUG)
@@ -61,4 +62,52 @@ bool D3D12App::InitDirect3D()
 			break;
 		}
 	}
+
+
+}
+
+void D3D12App::CreateFence()
+{
+	//**********************//
+	//	   Create Fence	    //
+	//**********************//
+
+	ThrowIfFailed(md3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&mFence)));
+}
+
+void D3D12App::CreateCommandObjects()
+{
+	//**********************//
+	//	   Create Fence	    //
+	//**********************//
+
+	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+	ThrowIfFailed(md3dDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&mCommandQueue)));
+
+	ThrowIfFailed(md3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(mDirectCmdListAlloc.GetAddressOf())));
+
+	// Create a temporary command list.
+	// ID3D12GraphicsCommandList
+	//
+	// We are using ID3D12GraphicsCommandList6 in our class,
+	// so we create the original interface first and then upgrade it
+	// using QueryInterface later
+	ComPtr<ID3D12GraphicsCommandList> cmdList = nullptr;
+
+	ThrowIfFailed(md3dDevice->CreateCommandList(
+		0,
+		D3D12_COMMAND_LIST_TYPE_DIRECT,
+		mDirectCmdListAlloc.Get(), // Associated command allocator
+		nullptr,                   // Initial PipelineStateObject
+		IID_PPV_ARGS(cmdList.GetAddressOf())));
+
+	// Check if it supports CommandList6, if it does, it swaps it to the new one
+	ThrowIfFailed(cmdList->QueryInterface(IID_PPV_ARGS(&mCommandList)));
+
+	// Start off in a closed state.  This is because the first time we refer 
+	// to the command list we will Reset it, and it needs to be closed before
+	// calling Reset.
+	mCommandList->Close();
 }

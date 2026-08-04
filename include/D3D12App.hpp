@@ -19,14 +19,23 @@ public:
   
     virtual bool Initialize();
   
-
 protected:
 
     bool InitDirect3D();
+    void CreateFence();
+    void CreateCommandObjects();
 
 protected:
 
     Microsoft::WRL::ComPtr<IDXGIFactory6> mdxgiFactory;
     Microsoft::WRL::ComPtr<ID3D12Device5> md3dDevice;
+
+    Microsoft::WRL::ComPtr<ID3D12Fence> mFence;
+    UINT64 mCurrentFence = 0;
+
+    // Command queue and command list
+    Microsoft::WRL::ComPtr<ID3D12CommandQueue>mCommandQueue;
+    Microsoft::WRL::ComPtr<ID3D12CommandAllocator>mDirectCmdListAlloc;
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6>mCommandList;
     
 };
