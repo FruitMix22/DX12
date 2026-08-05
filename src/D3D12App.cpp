@@ -6,9 +6,10 @@
 
 using Microsoft::WRL::ComPtr;
 
-D3D12App::D3D12App(HINSTANCE hInstance)
+D3D12App::D3D12App(HINSTANCE hInstance, HWND hWnd)
 {
-
+	mHInstance = hInstance;
+	mHWnd = hWnd;
 }
 
 bool D3D12App::Initialize()
@@ -16,6 +17,7 @@ bool D3D12App::Initialize()
 	InitDirect3D();
 	CreateFence();
 	CreateCommandObjects();
+	CreateSwapChain();
 	return true;
 }
 
@@ -44,7 +46,7 @@ bool D3D12App::InitDirect3D()
 	ComPtr<IDXGIAdapter> foundAdapter;
 
 	// Find an adapter that supports D3D_FEATURE_LEVEL_12_2
-		// This is mainly for laptops so it picks GPU over IGPU
+	// This is mainly for laptops so it picks GPU over IGPU
 	HRESULT hardwareResult = E_FAIL;
 
 	for (int i = 0; mdxgiFactory->EnumAdapters(i, &foundAdapter) != DXGI_ERROR_NOT_FOUND; i++)
@@ -110,4 +112,35 @@ void D3D12App::CreateCommandObjects()
 	// to the command list we will Reset it, and it needs to be closed before
 	// calling Reset.
 	mCommandList->Close();
+}
+
+void D3D12App::CreateSwapChain()
+{
+	// Release the previous swapchain, were recreating it as window size and stuff has changed
+	mSwapChain.Reset(); // nullptr
+
+	DXGI_SWAP_CHAIN_DESC1 sd;
+	sd.Width = mWindowWidth;
+	sd.Height = mWindowHeight;
+	sd.Format = mBackBufferFormant;
+	sd.Stereo = false;
+	sd.SampleDesc.Count = 1;
+	sd.SampleDesc.Quality = 0;
+	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	sd.BufferCount = mSwapChainBufferCount;
+	sd.Scaling = DXGI_SCALING_NONE;
+	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+	Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain1;
+	ThrowIfFailed(mdxgiFactory->CreateSwapChainForHwnd(
+		mCommandQueue.Get(), 
+		mHWnd, 
+		&sd, 
+		nullptr, 
+		nullptr, 
+		swapChain1.GetAddressOf()));
+
+	ThrowIfFailed(swapChain1.As(&mSwapChain));
 }

@@ -26,7 +26,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nShowCm
 	if (!InitWindowsApp(hInstance, nShowCmd))
 		return 0;
 
-	D3D12App app(hInstance);
+	D3D12App app(hInstance, ghMainWnd);
 	app.Initialize();
 
 	// Once created and initialised, run the message loop

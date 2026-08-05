@@ -11,7 +11,7 @@
 class D3D12App
 {
 public:
-    D3D12App(HINSTANCE hInstance);
+    D3D12App(HINSTANCE hInstance, HWND hWnd);
     D3D12App(const D3D12App& rhs) = delete;
 public:
 
@@ -21,9 +21,14 @@ public:
   
 protected:
 
+private:
+    HINSTANCE mHInstance;
+    HWND mHWnd;
+
     bool InitDirect3D();
     void CreateFence();
     void CreateCommandObjects();
+    void CreateSwapChain();
 
 protected:
 
@@ -37,5 +42,32 @@ protected:
     Microsoft::WRL::ComPtr<ID3D12CommandQueue>mCommandQueue;
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator>mDirectCmdListAlloc;
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6>mCommandList;
+
+    // Swap chain
+    typedef struct DXGI_SWAP_CHAIN_DESC
+    {
+        DXGI_MODE_DESC BufferDesc;
+        DXGI_SAMPLE_DESC SampleDesc;  
+        DXGI_USAGE BufferUsage;
+        UINT BufferCount;
+        HWND OutputWindow;
+        BOOL Windowed;
+        DXGI_SWAP_EFFECT SwapEffect;
+        UINT Flags;
+    }   DXGI_SWAP_CHAIN_DESC;
     
+    typedef struct DXGI_MODE_DESC
+    {
+        UINT Width;
+        UINT Height;
+        DXGI_RATIONAL RefreshRate;
+        DXGI_MODE_SCANLINE_ORDER ScanlineOrdering;
+        DXGI_MODE_SCALING Scaling;
+    }   DXGI_MODE_DESC;
+
+    DXGI_FORMAT mBackBufferFormant = DXGI_FORMAT_R8G8B8A8_UNORM;
+    Microsoft::WRL::ComPtr<IDXGISwapChain4> mSwapChain;
+    const int mSwapChainBufferCount = 2;
+    UINT mWindowWidth = 1280;
+    UINT mWindowHeight = 720;
 };
