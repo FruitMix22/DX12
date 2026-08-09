@@ -127,11 +127,14 @@
   <ItemGroup>
     <ClCompile Include="..\src\D3D12App.cpp" />
     <ClCompile Include="..\src\d3dUtil.cpp" />
+    <ClCompile Include="..\src\DescriptorUtil.cpp" />
     <ClCompile Include="..\src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\D3D12App.hpp" />
     <ClInclude Include="..\include\d3dUtil.h" />
+    <ClInclude Include="..\include\d3dx12.h" />
+    <ClInclude Include="..\include\DescriptorUtil.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

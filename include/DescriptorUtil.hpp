@@ -1,6 +1,8 @@
 #include <d3d12.h>
 #include <wrl.h>
+#include <cassert>
 #include "d3dx12.h"
+#include "d3dUtil.h"
 
 class DescriptorHeap
 {
@@ -18,5 +20,5 @@ public:
 
 protected:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mHeap = nullptr;
-	UINT mDescriptorHeap = 0;
+	UINT mDescriptorSize = 0;
 };

@@ -144,3 +144,21 @@ void D3D12App::CreateSwapChain()
 
 	ThrowIfFailed(swapChain1.As(&mSwapChain));
 }
+
+void D3D12App::CreateRtvAndDsvDescriptorHeaps()
+{
+	mRtvHeap.Init(md3dDevice.Get(),
+		D3D12_DESCRIPTOR_HEAP_TYPE_RTV, mSwapChainBufferCount);
+	mDsvHeap.Init(md3dDevice.Get(),
+		D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1);
+}
+
+CD3DX12_CPU_DESCRIPTOR_HANDLE D3D12App::CurrentBackBufferView()
+{
+	return mRtvHeap.CpuHandle(mCurrBackBuffer);
+}
+
+CD3DX12_CPU_DESCRIPTOR_HANDLE D3D12App::DepthStencilView()
+{
+	return mDsvHeap.CpuHandle(0);
+}

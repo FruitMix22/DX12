@@ -3,6 +3,7 @@
 #include <wrl.h>
 #include <vector>
 #include "d3dUtil.h"
+#include "DescriptorUtil.hpp"
 
 // Link necessary d3d12 libraries.
 #pragma comment(lib, "D3D12.lib")
@@ -29,6 +30,11 @@ private:
     void CreateFence();
     void CreateCommandObjects();
     void CreateSwapChain();
+    void CreateRtvAndDsvDescriptorHeaps();
+
+public:
+    CD3DX12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView();
+    CD3DX12_CPU_DESCRIPTOR_HANDLE DepthStencilView();
 
 protected:
 
@@ -67,7 +73,14 @@ protected:
 
     DXGI_FORMAT mBackBufferFormant = DXGI_FORMAT_R8G8B8A8_UNORM;
     Microsoft::WRL::ComPtr<IDXGISwapChain4> mSwapChain;
-    const int mSwapChainBufferCount = 2;
+    static const int mSwapChainBufferCount = 2;
+    int mCurrBackBuffer = 0;
     UINT mWindowWidth = 1280;
     UINT mWindowHeight = 720;
+
+    // Descriptor
+    DescriptorHeap mRtvHeap;
+    DescriptorHeap mDsvHeap;
+
+
 };
