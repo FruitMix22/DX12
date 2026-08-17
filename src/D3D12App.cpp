@@ -17,8 +17,8 @@ bool D3D12App::Initialize()
 	InitDirect3D();
 	CreateFence();
 	CreateCommandObjects();
-	CreateSwapChain();
-	return true;
+	CreateSwapChain(); 
+	return true; 
 }
 
 bool D3D12App::InitDirect3D()
@@ -151,6 +151,15 @@ void D3D12App::CreateRtvAndDsvDescriptorHeaps()
 		D3D12_DESCRIPTOR_HEAP_TYPE_RTV, mSwapChainBufferCount);
 	mDsvHeap.Init(md3dDevice.Get(),
 		D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1);
+}
+
+void D3D12App::CreateRenderViewTarget()
+{
+	for (UINT i = 0; i < mSwapChainBufferCount; i++)
+	{
+		ThrowIfFailed(mSwapChain->GetBuffer(i, IID_PPV_ARGS(&mSwapChainBuffer[i])));
+		md3dDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, mRtvHeap.CpuHandle(i));
+	}
 }
 
 CD3DX12_CPU_DESCRIPTOR_HANDLE D3D12App::CurrentBackBufferView()

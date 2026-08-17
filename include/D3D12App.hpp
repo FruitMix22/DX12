@@ -31,6 +31,7 @@ private:
     void CreateCommandObjects();
     void CreateSwapChain();
     void CreateRtvAndDsvDescriptorHeaps();
+    void CreateRenderViewTarget();
 
 public:
     CD3DX12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView();
@@ -74,6 +75,7 @@ protected:
     DXGI_FORMAT mBackBufferFormant = DXGI_FORMAT_R8G8B8A8_UNORM;
     Microsoft::WRL::ComPtr<IDXGISwapChain4> mSwapChain;
     static const int mSwapChainBufferCount = 2;
+    Microsoft::WRL::ComPtr<ID3D12Resource> mSwapChainBuffer[mSwapChainBufferCount];
     int mCurrBackBuffer = 0;
     UINT mWindowWidth = 1280;
     UINT mWindowHeight = 720;
@@ -82,5 +84,18 @@ protected:
     DescriptorHeap mRtvHeap;
     DescriptorHeap mDsvHeap;
 
-
+    // depth buffer
+    typedef struct D3D12_RESOURCE_DESC
+    {
+        D3D12_RESOURCE_DIMENSION Dimension;
+        UINT64 Allignment;
+        UINT64 Width;
+        UINT Height;
+        UINT16 DepthOrArraySize;
+        UINT16 MipLevels;
+        DXGI_FORMAT Format;
+        DXGI_SAMPLE_DESC SampleDesc;
+        D3D12_TEXTURE_LAYOUT Layout;
+        D3D12_RESOURCE_FLAGS Flags;
+    }   D3D12_RESOURCE_DESC;
 };
