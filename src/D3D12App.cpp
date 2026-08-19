@@ -18,6 +18,9 @@ bool D3D12App::Initialize()
 	CreateFence();
 	CreateCommandObjects();
 	CreateSwapChain(); 
+	CreateRtvAndDsvDescriptorHeaps();
+	CreateRenderViewTarget();
+	CreateDepthBufferAndView();
 	return true; 
 }
 
@@ -160,6 +163,53 @@ void D3D12App::CreateRenderViewTarget()
 		ThrowIfFailed(mSwapChain->GetBuffer(i, IID_PPV_ARGS(&mSwapChainBuffer[i])));
 		md3dDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, mRtvHeap.CpuHandle(i));
 	}
+}
+
+void D3D12App::CreateDepthBufferAndView()
+{
+	// create depth buffer
+	D3D12_RESOURCE_DESC depthDesc = {};
+	depthDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	depthDesc.Alignment = 0; // Fixed typo: Allignment -> Alignment
+	depthDesc.Width = mWindowWidth;
+	depthDesc.Height = mWindowHeight;
+	depthDesc.DepthOrArraySize = 1;
+	depthDesc.MipLevels = 1;
+	depthDesc.Format = mDepthFormat;
+	depthDesc.SampleDesc.Count = 1;
+	depthDesc.SampleDesc.Quality = 0;
+	depthDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	depthDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+	D3D12_CLEAR_VALUE optClear = {};
+	optClear.Format = mDepthFormat;
+	optClear.DepthStencil.Depth = 1.0f;
+	optClear.DepthStencil.Stencil = 0;
+
+	auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+
+	ThrowIfFailed(md3dDevice->CreateCommittedResource(
+		&heapProperties,
+		D3D12_HEAP_FLAG_NONE,
+		&depthDesc,
+		D3D12_RESOURCE_STATE_COMMON,
+		&optClear,
+		IID_PPV_ARGS(mDepthBuffer.GetAddressOf())));
+
+	// Create descriptor to mip level 0 of entire resource uising the format of the resource
+	md3dDevice->CreateDepthStencilView(
+		mDepthBuffer.Get(),
+		nullptr,
+		DepthStencilView());
+
+	// Transition the resource from its initial state to be used as a depth buffer
+	CD3DX12_RESOURCE_BARRIER depthBarrier[1];
+	depthBarrier[0] = CD3DX12_RESOURCE_BARRIER::Transition(
+		mDepthBuffer.Get(),
+		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE);
+
+	mCommandList->ResourceBarrier(1, depthBarrier);
 }
 
 CD3DX12_CPU_DESCRIPTOR_HANDLE D3D12App::CurrentBackBufferView()
